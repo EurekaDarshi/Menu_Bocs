@@ -285,3 +285,76 @@ tbody tr:last-child td { border-bottom: 0; }
   .dish-actions { width: 100%; justify-content: flex-start; }
   .head-actions .btn { flex: 1; }
 }
+
+/* =================== MOBILE (prioritaire) =================== */
+.input, .select { min-height: 48px; }
+.btn { min-height: 46px; }
+.btn-primary.btn-block { min-height: 52px; font-size: 17px; }
+body { padding-bottom: env(safe-area-inset-bottom); }
+
+@media (max-width: 640px) {
+  body { font-size: 16px; }
+  .topbar-inner { padding: 10px 16px; padding-top: max(10px, env(safe-area-inset-top)); }
+  .brand-mark { width: 38px; height: 38px; font-size: 12px; }
+  .btn-admin { padding: 8px 12px; min-height: 40px; }
+  .btn-admin span { display: inline; }
+  .hero-inner { padding: 22px 16px 0; }
+  .hero h1 { font-size: 27px; margin: 4px 0 8px; }
+  .hero .lead { font-size: 16px; }
+  .guest { margin-top: 16px; padding: 12px 14px; }
+  .meta { flex-direction: column; gap: 6px; margin-top: 12px; }
+
+  /* formulaire à pleine largeur, sans boîte imbriquée */
+  .order-card { border: 0; border-top: 1px solid var(--line); border-radius: 0; padding: 22px 0 8px; margin: 22px 0 32px; }
+  .card-title { font-size: 21px; }
+  .card-sub { margin-bottom: 18px; }
+  .field { margin-bottom: 16px; }
+  .field label { font-size: 15.5px; }
+  .actions { flex-direction: column; }
+  .ticket dl { grid-template-columns: 1fr; }
+  .ticket dt { padding: 10px 0 0; border-bottom: 0; font-size: 13.5px; }
+  .ticket dd { text-align: left; padding: 2px 0 10px; }
+  .ticket dl > :nth-last-child(2) { border-bottom: 0; }
+
+  footer { font-size: 13px; }
+  footer .wrap { flex-direction: column; gap: 2px; padding: 16px 16px max(16px, env(safe-area-inset-bottom)); }
+
+  /* admin */
+  .dash-head h1 { font-size: 22px; }
+  .head-actions { width: 100%; }
+  .stats { grid-template-columns: 1fr 1fr; gap: 10px; }
+  .stat:first-child { grid-column: 1 / -1; }
+  .stat b { font-size: 26px; }
+  .tab { padding: 10px 12px; font-size: 15px; }
+  .row .field { min-width: 0; }
+
+  /* tableau des participants → fiches */
+  .table-wrap { border: 0; overflow: visible; }
+  .table-wrap table, .table-wrap tbody { display: block; }
+  .table-wrap thead { display: none; }
+  .table-wrap tr { display: grid; grid-template-columns: 1fr auto; gap: 2px 10px; padding: 12px 0; border-bottom: 1px solid var(--line); }
+  .table-wrap td { display: block; padding: 0; border: 0; white-space: normal; min-width: 0; }
+  .table-wrap td[data-label="N°"], .table-wrap td[data-label="Reçu"] { display: none; }
+  .table-wrap .cell-name { grid-column: 1; grid-row: 1; font-size: 16px; }
+  .table-wrap .cell-del { grid-column: 2; grid-row: 1 / span 3; align-self: center; }
+  .table-wrap .wrap-cell { grid-column: 1; color: var(--muted); font-size: 14.5px; }
+  .table-wrap .cell-dish { grid-column: 1; font-weight: 600; color: var(--green-dark); }
+  .table-wrap td[data-label="Date"] { grid-column: 1; font-size: 13px; }
+  .table-wrap td.empty { grid-column: 1 / -1; }
+  .icon-btn { padding: 10px; }
+  .toolbar .input, .toolbar .select { min-width: 0; flex-basis: 100%; }
+}
+
+@media (max-width: 640px) {
+  .admin-body .brand-text { display: none; }
+  .admin-body .topbar-inner > div { margin-left: auto; }
+  .tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; border-bottom: 0; overflow: visible; }
+  .tab { border: 1px solid var(--line); border-radius: 4px; margin: 0; padding: 10px 8px; text-align: center; }
+  .tab[aria-selected="true"] { background: var(--green-light); border-color: var(--green); }
+  .card.panel { border: 0; border-top: 1px solid var(--line); border-radius: 0; padding: 18px 0 4px; }
+  .danger-zone.card.panel { border-top-color: #e3b5b0; }
+  #dish-form .btn, #settings-form .btn-primary { width: 100%; }
+  #dish-form > div:last-child { flex-direction: column; align-items: stretch !important; }
+  #dish-form > div:last-child > div { flex-direction: column-reverse; }
+}
+@media (max-width: 640px) { .bar-row { gap: 6px 10px; } .bars { gap: 16px; } }

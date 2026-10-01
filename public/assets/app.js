@@ -32,6 +32,7 @@
     const el = $("form-error");
     el.textContent = msg;
     el.hidden = !msg;
+    if (msg) el.scrollIntoView({ behavior: "smooth", block: "center" });
   }
 
   function fillDishes() {
@@ -68,7 +69,7 @@
     $("r-dish").textContent = order.dishName;
     $("r-date").textContent = new Date(order.updatedAt).toLocaleString("fr-FR", { dateStyle: "medium", timeStyle: "short" });
     show("success");
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    document.querySelector(".order-card").scrollIntoView({ behavior: "smooth", block: "start" });
   }
 
   function download(order) {
@@ -150,6 +151,7 @@
     $("dish").value = lastOrder ? lastOrder.dishId : "";
     updatePreview();
     show("order-form");
+    document.querySelector(".order-card").scrollIntoView({ behavior: "smooth", block: "start" });
   });
 
   $("year").textContent = new Date().getFullYear();

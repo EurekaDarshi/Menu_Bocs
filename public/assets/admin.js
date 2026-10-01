@@ -162,7 +162,7 @@
         (!q || `${o.nom} ${o.prenom} ${o.structure} ${o.receipt}`.toLowerCase().includes(q))
     );
     if (!rows.length) {
-      body.append(el("tr", {}, el("td", { colspan: 8, class: "empty" }, state.orders.length ? "Aucun résultat." : "Aucune inscription pour le moment.")));
+      body.append(el("tr", {}, el("td", { colspan: 7, class: "empty" }, state.orders.length ? "Aucun résultat." : "Aucune inscription pour le moment.")));
       return;
     }
     rows.forEach((o, i) => {
@@ -170,14 +170,13 @@
       del.innerHTML = TRASH;
       body.append(
         el("tr", {},
-          el("td", { class: "mono" }, String(i + 1)),
-          el("td", {}, el("b", {}, o.nom)),
-          el("td", {}, o.prenom),
-          el("td", { class: "wrap-cell" }, o.structure),
-          el("td", {}, o.dishName),
-          el("td", { class: "mono" }, fmtDate(o.updatedAt)),
-          el("td", { class: "mono" }, o.receipt),
-          el("td", {}, del)
+          el("td", { class: "mono", "data-label": "N°" }, String(i + 1)),
+          el("td", { class: "cell-name" }, el("b", {}, `${o.nom} ${o.prenom}`)),
+          el("td", { class: "wrap-cell", "data-label": "Structure" }, o.structure),
+          el("td", { class: "cell-dish", "data-label": "Plat" }, o.dishName),
+          el("td", { class: "mono", "data-label": "Date" }, fmtDate(o.updatedAt)),
+          el("td", { class: "mono", "data-label": "Reçu" }, o.receipt),
+          el("td", { class: "cell-del" }, del)
         )
       );
     });
