@@ -83,7 +83,7 @@
   function render() {
     const { settings, dishes, orders } = state;
     $("h-event").textContent = settings.eventTitle;
-    $("h-ministry").textContent = `Tableau de bord ${settings.ministryShort}`;
+    $("h-ministry").textContent = `Tableau de bord — ${settings.ministryShort}`;
     $("c-dishes").textContent = dishes.length;
     $("c-orders").textContent = orders.length;
     $("s-total").textContent = orders.length;

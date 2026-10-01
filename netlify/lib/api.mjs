@@ -4,12 +4,13 @@ import { db } from "./store.mjs";
 const DEFAULT_SETTINGS = {
   organisation: "BOCS",
   organisationLong: "Bureau Opérationnel de Coordination et de Suivi",
-  eventTitle: "Atelier - Module Ministériel",
+  eventTitle: "Atelier — Module Ministériel",
   ministry: "Ministère de l'Agriculture, de la Souveraineté Alimentaire et de l'Élevage",
   ministryShort: "MASAE",
   eventDate: "",
   location: "",
-  welcome: "Merci d'indiquer votre nom, votre structure et le plat choisi pour le déjeuner.",
+  welcome:
+    "Bienvenue au BOCS. Merci de renseigner vos informations et de choisir votre plat pour le déjeuner de l'atelier.",
   open: true,
 };
 

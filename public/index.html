@@ -3,89 +3,140 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <meta name="theme-color" content="#0a5c3b" />
-  <title>Choix du déjeuner - BOCS</title>
-  <meta name="description" content="Choix du déjeuner pour l'atelier du module ministériel au BOCS." />
+  <meta name="theme-color" content="#ffffff" />
+  <title>Menu de l'atelier — BOCS</title>
+  <meta name="description" content="Choisissez votre plat pour l'atelier du module ministériel au BOCS." />
   <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="/assets/style.css" />
 </head>
 <body>
+  <div class="flag-stripe"></div>
   <header class="topbar">
     <div class="topbar-inner">
       <a class="brand" href="/">
-        <span class="brand-name" data-s="organisation">BOCS</span>
-        <span class="brand-long" data-s="organisationLong">Bureau Opérationnel de Coordination et de Suivi</span>
+        <div class="brand-mark" data-s="organisation">BOCS</div>
+        <div class="brand-text">
+          <div class="brand-name" data-s="organisation">BOCS</div>
+          <div class="brand-long" data-s="organisationLong">Bureau Opérationnel de Coordination et de Suivi</div>
+        </div>
       </a>
-      <a class="btn-admin" href="/admin.html">Admin</a>
+      <a class="btn-admin" href="/admin.html" title="Connexion administrateur">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
+        <span>Admin</span>
+      </a>
     </div>
   </header>
 
+  <section class="hero">
+    <div class="hero-inner">
+      <p class="eyebrow" data-s="eventTitle">Atelier — Module Ministériel</p>
+      <h1>Choix du menu pour le déjeuner</h1>
+      <p class="lead" data-s="welcome">Bienvenue au BOCS. Merci de renseigner vos informations et de choisir votre plat pour le déjeuner de l'atelier.</p>
+      <div class="guest">
+        <div class="guest-badge" data-s="ministryShort">MASAE</div>
+        <div>
+          <small>Ministère accueilli cette semaine</small>
+          <strong data-s="ministry">Ministère de l'Agriculture, de la Souveraineté Alimentaire et de l'Élevage</strong>
+        </div>
+      </div>
+      <div class="meta">
+        <span id="meta-date" hidden>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18"/></svg>
+          <span data-s="eventDate"></span>
+        </span>
+        <span id="meta-location" hidden>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21Z"/><circle cx="12" cy="9.5" r="2.5"/></svg>
+          <span data-s="location"></span>
+        </span>
+      </div>
+    </div>
+  </section>
+
   <main>
     <div class="wrap">
-      <section class="intro">
-        <h1>Choix du déjeuner</h1>
-        <p class="event"><span data-s="eventTitle">Atelier - Module Ministériel</span><span id="meta-date" hidden>, <span data-s="eventDate"></span></span></p>
-        <p class="guest">Ministère accueilli : <strong data-s="ministry">Ministère de l'Agriculture, de la Souveraineté Alimentaire et de l'Élevage</strong> (<span data-s="ministryShort">MASAE</span>)</p>
-        <p class="guest" id="meta-location" hidden>Lieu : <span data-s="location"></span></p>
-        <p class="lead" data-s="welcome">Merci d'indiquer votre nom, votre structure et le plat choisi pour le déjeuner.</p>
-      </section>
+      <div class="card order-card">
+        <!-- chargement -->
+        <div id="loading">
+          <div class="skeleton" style="width:55%;height:24px"></div>
+          <div class="skeleton" style="width:80%"></div>
+          <div class="skeleton" style="height:46px;margin-top:24px"></div>
+          <div class="skeleton" style="height:46px"></div>
+          <div class="skeleton" style="height:46px"></div>
+        </div>
 
-      <div class="order-card">
-        <p id="loading" class="muted">Chargement...</p>
-
+        <!-- formulaire -->
         <form id="order-form" hidden novalidate>
+          <h2 class="card-title">Vos informations</h2>
+          <p class="card-sub">Tous les champs sont obligatoires.</p>
           <div id="form-error" class="alert" role="alert" hidden></div>
           <div class="row">
             <div class="field">
-              <label for="nom">Nom <span class="req">*</span></label>
-              <input class="input" id="nom" name="nom" autocomplete="family-name" autocapitalize="characters" enterkeyhint="next" required maxlength="80" />
+              <label for="nom">Nom</label>
+              <input class="input" id="nom" name="nom" autocomplete="family-name" autocapitalize="characters" enterkeyhint="next" required maxlength="80" placeholder="Ex. DIOP" />
             </div>
             <div class="field">
-              <label for="prenom">Prénom <span class="req">*</span></label>
-              <input class="input" id="prenom" name="prenom" autocomplete="given-name" autocapitalize="words" enterkeyhint="next" required maxlength="80" />
+              <label for="prenom">Prénom</label>
+              <input class="input" id="prenom" name="prenom" autocomplete="given-name" autocapitalize="words" enterkeyhint="next" required maxlength="80" placeholder="Ex. Awa" />
             </div>
           </div>
           <div class="field">
-            <label for="structure">Structure <span class="req">*</span></label>
-            <input class="input" id="structure" name="structure" autocomplete="organization" autocapitalize="sentences" enterkeyhint="next" required maxlength="160" />
-            <p class="help">Exemple : MASAE, Direction de l'Agriculture</p>
+            <label for="structure">Structure</label>
+            <input class="input" id="structure" name="structure" autocomplete="organization" autocapitalize="sentences" enterkeyhint="next" required maxlength="160" placeholder="Ex. MASAE, Direction de l'Agriculture" />
           </div>
           <div class="field">
-            <label for="dish">Plat <span class="req">*</span></label>
+            <label for="dish">Votre plat</label>
             <select class="select" id="dish" name="dish" required>
-              <option value="">Choisir un plat</option>
+              <option value="">— Sélectionnez un plat —</option>
             </select>
-            <p id="dish-preview" class="help" hidden><span id="dish-desc"></span></p>
+            <div id="dish-preview" class="dish-preview" hidden>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 11h18a9 9 0 0 1-18 0Z"/><path d="M12 3v3M8 5l1 2M16 5l-1 2"/></svg>
+              <span id="dish-desc"></span>
+            </div>
           </div>
-          <button class="btn btn-primary btn-submit" type="submit" id="submit-btn">Valider</button>
+          <button class="btn btn-primary btn-block" type="submit" id="submit-btn">
+            Valider mon choix
+          </button>
+          <p class="privacy">Vos informations servent uniquement à l'organisation du déjeuner de l'atelier.</p>
         </form>
 
-        <div id="success" hidden>
-          <div class="notice">
-            <strong id="success-title">Votre choix est enregistré.</strong>
-            <span id="success-sub"></span>
+        <!-- confirmation -->
+        <div id="success" class="success" hidden>
+          <div class="success-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>
           </div>
-          <table class="recap">
-            <caption>Reçu n° <span id="r-number"></span></caption>
-            <tr><th scope="row">Nom</th><td id="r-nom"></td></tr>
-            <tr><th scope="row">Prénom</th><td id="r-prenom"></td></tr>
-            <tr><th scope="row">Structure</th><td id="r-structure"></td></tr>
-            <tr><th scope="row">Plat</th><td id="r-dish"></td></tr>
-            <tr><th scope="row">Date</th><td id="r-date"></td></tr>
-          </table>
+          <h2 class="card-title" id="success-title">Merci !</h2>
+          <p class="card-sub" id="success-sub" style="margin:0">Votre choix a bien été enregistré.</p>
+          <div class="ticket">
+            <div class="ticket-head"><span>Reçu de choix de menu</span><b id="r-number"></b></div>
+            <dl>
+              <dt>Nom</dt><dd id="r-nom"></dd>
+              <dt>Prénom</dt><dd id="r-prenom"></dd>
+              <dt>Structure</dt><dd id="r-structure"></dd>
+              <dt>Plat choisi</dt><dd id="r-dish" class="dish"></dd>
+              <dt>Enregistré le</dt><dd id="r-date"></dd>
+            </dl>
+          </div>
           <div class="actions">
-            <button class="btn btn-primary" type="button" id="download-btn">Télécharger le reçu (PDF)</button>
+            <button class="btn btn-gold" type="button" id="download-btn">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg>
+              Télécharger le reçu (PDF)
+            </button>
             <button class="btn btn-ghost" type="button" id="again-btn">Modifier mon choix</button>
           </div>
         </div>
 
-        <div id="closed" hidden>
-          <div class="notice notice-warn">
-            <strong id="closed-title">Le choix des menus est fermé.</strong>
-            <span id="closed-text"></span>
+        <!-- fermé -->
+        <div id="closed" class="closed" hidden>
+          <div class="success-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
           </div>
-          <div class="actions" id="closed-actions" hidden>
-            <button class="btn btn-ghost" type="button" id="closed-download">Télécharger mon dernier reçu</button>
+          <h2 class="card-title" id="closed-title">Inscriptions fermées</h2>
+          <p class="card-sub" id="closed-text" style="margin:0">Le choix des menus n'est pas ouvert pour le moment. Merci de vous rapprocher de l'équipe d'organisation.</p>
+          <div class="actions" id="closed-actions" style="margin-top:22px" hidden>
+            <button class="btn btn-gold" type="button" id="closed-download">Télécharger mon dernier reçu</button>
           </div>
         </div>
       </div>
@@ -94,7 +145,8 @@
 
   <footer>
     <div class="wrap">
-      <span data-s="organisation">BOCS</span>, <span data-s="organisationLong">Bureau Opérationnel de Coordination et de Suivi</span>, <span id="year"></span>
+      <span>© <span id="year"></span> <span data-s="organisation">BOCS</span> — <span data-s="organisationLong">Bureau Opérationnel de Coordination et de Suivi</span></span>
+      <span data-s="eventTitle">Atelier — Module Ministériel</span>
     </div>
   </footer>
 
