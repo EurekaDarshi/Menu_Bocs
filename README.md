@@ -10,11 +10,12 @@ Petit site permettant aux visiteurs du **BOCS** (Bureau Opérationnel de Coordin
 - Une même personne (nom + prénom + structure) peut modifier son choix : l'inscription est mise à jour, pas dupliquée
 
 **Administrateur** (`/admin.html`, bouton « Espace admin » en haut à droite)
-- Connexion par mot de passe
+- Connexion par mot de passe (bloquée 15 min après 8 tentatives échouées)
 - Ajout / modification / suppression des plats, activation ou désactivation de leur disponibilité
 - Synthèse du nombre de plats commandés
 - Liste des participants avec recherche et filtre par plat
-- **Téléchargement Excel (.xlsx) ou CSV** : récapitulatif du nombre de chaque plat en haut, puis la liste nominative
+- **PDF à imprimer** et **Excel (.xlsx)** : récapitulatif du nombre de chaque plat en haut, puis la liste nominative (avec colonne d'émargement dans le PDF)
+- Ouverture / fermeture du choix des menus en un clic depuis la synthèse
 - Paramètres de l'atelier (ministère accueilli, dates, lieu, message d'accueil, ouverture/fermeture des inscriptions)
 - Remise à zéro des inscriptions pour l'atelier suivant
 
@@ -25,7 +26,7 @@ public/                  Frontend (HTML/CSS/JS, sans framework)
   index.html             Page visiteurs
   admin.html             Espace administrateur
   assets/                Styles, scripts, génération du reçu PDF
-  vendor/                jsPDF (reçus) et SheetJS (export Excel)
+  vendor/                jsPDF (reçus, PDF à imprimer) et SheetJS (export Excel)
 netlify/
   functions/api.mjs      Backend : fonction Netlify servie sur /api/*
   lib/api.mjs            Logique de l'API (routes, validation, authentification)

@@ -21,7 +21,7 @@
     });
     $("meta-date").hidden = !s.eventDate;
     $("meta-location").hidden = !s.location;
-    document.title = `Menu — ${s.eventTitle} | ${s.organisation}`;
+    document.title = `Choix du déjeuner - ${s.organisation}`;
   }
 
   function show(id) {
@@ -58,16 +58,14 @@
 
   function showSuccess(order, updated) {
     lastOrder = order;
-    $("success-title").textContent = `Merci ${order.prenom}, c'est noté.`;
-    $("success-sub").textContent = updated
-      ? "Votre choix a été mis à jour."
-      : "Votre choix a bien été enregistré.";
+    $("success-title").textContent = updated ? "Votre choix a été modifié." : "Votre choix est enregistré.";
+    $("success-sub").textContent = " Vous pouvez télécharger votre reçu.";
     $("r-number").textContent = order.receipt;
     $("r-nom").textContent = order.nom;
     $("r-prenom").textContent = order.prenom;
     $("r-structure").textContent = order.structure;
     $("r-dish").textContent = order.dishName;
-    $("r-date").textContent = new Date(order.updatedAt).toLocaleString("fr-FR", { dateStyle: "medium", timeStyle: "short" });
+    $("r-date").textContent = new Date(order.updatedAt).toLocaleString("fr-FR", { dateStyle: "short", timeStyle: "short" });
     show("success");
     document.querySelector(".order-card").scrollIntoView({ behavior: "smooth", block: "start" });
   }
@@ -89,15 +87,15 @@
       dishes = data.dishes;
       applySettings(settings);
       if (!settings.open) {
-        return showClosed("Inscriptions fermées", "Le choix des menus est clôturé. Merci de vous rapprocher de l'équipe d'organisation.");
+        return showClosed("Le choix des menus est fermé.", " Pour toute question, adressez-vous à l'équipe d'organisation.");
       }
       if (!dishes.length) {
-        return showClosed("Menu bientôt disponible", "Les plats n'ont pas encore été publiés. Merci de revenir dans quelques instants.");
+        return showClosed("Le menu n'est pas encore disponible.", " Merci de réessayer un peu plus tard.");
       }
       fillDishes();
       show("order-form");
     } catch {
-      showClosed("Connexion impossible", "Le service est momentanément indisponible. Merci de recharger la page.");
+      showClosed("Le service est momentanément indisponible.", " Merci de recharger la page.");
     }
   }
 

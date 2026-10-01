@@ -3,13 +3,10 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <meta name="theme-color" content="#ffffff" />
+  <meta name="theme-color" content="#0a5c3b" />
   <meta name="robots" content="noindex" />
-  <title>Administration — Menu BOCS</title>
+  <title>Administration - Choix du déjeuner - BOCS</title>
   <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml" />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="/assets/style.css" />
 </head>
 <body class="admin-body">
@@ -17,20 +14,13 @@
   <header class="topbar">
     <div class="topbar-inner">
       <a class="brand" href="/">
-        <div class="brand-mark">BOCS</div>
-        <div class="brand-text">
-          <div class="brand-name">Administration</div>
-          <div class="brand-long">Gestion des menus de l'atelier</div>
-        </div>
+        <span class="brand-name">BOCS</span>
+        <span class="brand-long">Administration</span>
       </a>
       <div style="display:flex;gap:8px">
-        <a class="btn-admin" href="/" title="Voir le site">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg>
-          <span>Voir le site</span>
+        <a class="btn-admin" href="/" title="Voir le site">Voir le site
         </a>
-        <button class="btn-admin" id="logout-btn" type="button" hidden title="Se déconnecter">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 4h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-3M10 17l5-5-5-5M15 12H3"/></svg>
-          <span>Déconnexion</span>
+        <button class="btn-admin" id="logout-btn" type="button" hidden title="Se déconnecter">Déconnexion
         </button>
       </div>
     </div>
@@ -39,9 +29,8 @@
   <!-- ================= CONNEXION ================= -->
   <section id="login-view" class="login-wrap" hidden>
     <form class="card login-card" id="login-form">
-      <div class="brand-mark">BOCS</div>
-      <h1 class="card-title">Espace administrateur</h1>
-      <p class="card-sub">Accès réservé à l'équipe d'organisation.</p>
+      <h1>Administration</h1>
+      <p class="muted">Accès réservé à l'équipe d'organisation.</p>
       <div id="login-error" class="alert" role="alert" hidden></div>
       <div class="field">
         <label for="password">Mot de passe</label>
@@ -55,15 +44,18 @@
   <main id="dash-view" class="dash" hidden>
     <div class="dash-head">
       <div>
-        <p class="eyebrow" id="h-event">Atelier</p>
+        <p class="event" id="h-event">Atelier</p>
         <h1 id="h-ministry">Tableau de bord</h1>
       </div>
       <div class="head-actions">
-        <button class="btn btn-gold" id="export-xlsx" type="button">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg>
-          Télécharger Excel
+        <button class="btn btn-primary" id="export-pdf" type="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9V3h12v6M6 18H4a1 1 0 0 1-1-1v-6a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v6a1 1 0 0 1-1 1h-2M7 14h10v7H7z"/></svg>
+          PDF à imprimer
         </button>
-        <button class="btn btn-ghost" id="export-csv" type="button">CSV</button>
+        <button class="btn btn-ghost" id="export-xlsx" type="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg>
+          Excel
+        </button>
       </div>
     </div>
 
@@ -79,7 +71,11 @@
       <div class="stats">
         <div class="card stat accent"><small>Participants inscrits</small><b id="s-total">0</b></div>
         <div class="card stat"><small>Plats disponibles</small><b id="s-dishes">0</b></div>
-        <div class="card stat"><small>Inscriptions</small><b id="s-open" style="font-size:21px;margin-top:10px">—</b></div>
+        <div class="card stat stat-toggle">
+          <small>Choix des menus</small>
+          <b id="s-open"></b>
+          <button class="btn btn-sm" type="button" id="toggle-open"></button>
+        </div>
       </div>
       <div class="card panel">
         <h2>Nombre de plats commandés</h2>
@@ -92,7 +88,7 @@
     <section data-panel="dishes" hidden>
       <div class="card panel">
         <h2 id="dish-form-title">Ajouter un plat</h2>
-        <p class="sub">Les plats « disponibles » apparaissent dans la liste déroulante des visiteurs.</p>
+        <p class="sub">Les plats disponibles apparaissent dans la liste proposée aux visiteurs.</p>
         <form id="dish-form">
           <div class="row">
             <div class="field">
@@ -174,6 +170,7 @@
   <div class="toast" id="toast" role="status"></div>
 
   <script src="/vendor/xlsx.full.min.js" defer></script>
+  <script src="/vendor/jspdf.umd.min.js" defer></script>
   <script src="/assets/admin.js" defer></script>
 </body>
 </html>

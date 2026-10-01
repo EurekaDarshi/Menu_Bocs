@@ -31,25 +31,20 @@
 
     // En-tête
     doc.setFillColor(...GREEN);
-    doc.rect(M, 10, 16, 16, "F");
+    doc.rect(0, 2.5, W, 16, "F");
     doc.setTextColor(255, 255, 255);
     doc.setFont("helvetica", "bold");
-    doc.setFontSize(7.5);
-    doc.text(t(settings.organisation || "BOCS"), M + 8, 19.3, { align: "center" });
-    doc.setTextColor(...GREEN);
     doc.setFontSize(12);
-    doc.text(t(settings.organisation || "BOCS"), M + 21, 15.5);
+    doc.text(t(settings.organisation || "BOCS"), M, 12.5);
+    const orgWidth = doc.getTextWidth(t(settings.organisation || "BOCS"));
     doc.setFont("helvetica", "normal");
     doc.setFontSize(8.5);
+    doc.text(t(settings.organisationLong), M + orgWidth + 4, 12.5);
     doc.setTextColor(...MUTED);
-    doc.text(doc.splitTextToSize(t(settings.organisationLong), W - M * 2 - 21), M + 21, 20.5);
-    doc.text(t(settings.eventTitle), M + 21, 25);
-    doc.setDrawColor(220, 223, 220);
-    doc.setLineWidth(0.3);
-    doc.line(M, 32, W - M, 32);
+    doc.text(t(settings.eventTitle), M, 26);
 
     // Titre
-    let y = 44;
+    let y = 38;
     doc.setTextColor(...INK);
     doc.setFont("helvetica", "bold");
     doc.setFontSize(17);

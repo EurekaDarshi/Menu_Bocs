@@ -10,6 +10,7 @@ process.env.LOCAL_DATA_DIR ??= path.join(root, ".data");
 process.env.ADMIN_PASSWORD ??= "admin";
 const { handle } = await import("../netlify/lib/api.mjs");
 
+const CSP = (await fs.readFile(path.join(root, "netlify.toml"), "utf8")).match(/Content-Security-Policy = "([^"]+)"/)[1];
 const PORT = Number(process.env.PORT) || 8888;
 const TYPES = {
   ".html": "text/html; charset=utf-8",
@@ -40,7 +41,11 @@ http
     if (url.pathname.endsWith("/")) file = path.join(file, "index.html");
     try {
       const data = await fs.readFile(file);
-      res.writeHead(200, { "content-type": TYPES[path.extname(file)] || "application/octet-stream" });
+      res.writeHead(200, {
+        "content-type": TYPES[path.extname(file)] || "application/octet-stream",
+        // même politique de sécurité qu'en production (netlify.toml)
+        "content-security-policy": CSP,
+      });
       res.end(data);
     } catch {
       res.writeHead(404).end("Not found");

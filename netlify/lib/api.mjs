@@ -4,13 +4,12 @@ import { db } from "./store.mjs";
 const DEFAULT_SETTINGS = {
   organisation: "BOCS",
   organisationLong: "Bureau Opérationnel de Coordination et de Suivi",
-  eventTitle: "Atelier — Module Ministériel",
+  eventTitle: "Atelier - Module Ministériel",
   ministry: "Ministère de l'Agriculture, de la Souveraineté Alimentaire et de l'Élevage",
   ministryShort: "MASAE",
   eventDate: "",
   location: "",
-  welcome:
-    "Bienvenue au BOCS. Merci de renseigner vos informations et de choisir votre plat pour le déjeuner de l'atelier.",
+  welcome: "Merci d'indiquer votre nom, votre structure et le plat choisi pour le déjeuner.",
   open: true,
 };
 
@@ -60,8 +59,33 @@ async function getOrders(store) {
 }
 
 // ---------- authentification admin ----------
+// Le mot de passe fait partie de la clé de signature : le changer déconnecte toutes les sessions admin.
 function secret() {
-  return process.env.ADMIN_SECRET || process.env.ADMIN_PASSWORD || "";
+  const password = process.env.ADMIN_PASSWORD || "";
+  if (!password) return "";
+  return `${process.env.ADMIN_SECRET || ""}:${password}`;
+}
+
+// ---------- limitation des tentatives (par adresse IP) ----------
+function clientIp(req) {
+  return (
+    req.headers.get("x-nf-client-connection-ip") ||
+    (req.headers.get("x-forwarded-for") || "").split(",")[0].trim() ||
+    "local"
+  );
+}
+
+async function overLimit(store, bucket, req, max, windowMs) {
+  const key = `limits/${bucket}/${sha(clientIp(req)).slice(0, 32)}`;
+  const now = Date.now();
+  const entry = await store.get(key);
+  const current = entry && entry.reset > now ? entry : { count: 0, reset: now + windowMs };
+  return { key, entry: current, blocked: current.count >= max };
+}
+
+async function hit(store, limit) {
+  limit.entry.count += 1;
+  await store.set(limit.key, limit.entry);
 }
 
 function signToken(payload) {
@@ -113,6 +137,9 @@ export async function handle(req) {
     }
 
     if (route === "/orders" && method === "POST") {
+      const limit = await overLimit(store, "orders", req, 150, 10 * 60 * 1000);
+      if (limit.blocked) return fail("Trop de demandes depuis ce réseau. Réessayez dans quelques minutes.", 429);
+      await hit(store, limit);
       const input = await body(req);
       const nom = clean(input.nom, 80);
       const prenom = clean(input.prenom, 80);
@@ -148,11 +175,15 @@ export async function handle(req) {
     if (route === "/admin/login" && method === "POST") {
       if (!process.env.ADMIN_PASSWORD)
         return fail("ADMIN_PASSWORD n'est pas configuré sur le serveur (variables d'environnement Netlify).", 500);
+      const limit = await overLimit(store, "login", req, 8, 15 * 60 * 1000);
+      if (limit.blocked) return fail("Trop de tentatives. Réessayez dans 15 minutes.", 429);
       const { password } = await body(req);
       if (!passwordMatches(password)) {
+        await hit(store, limit);
         await new Promise((r) => setTimeout(r, 600));
         return fail("Mot de passe incorrect.", 401);
       }
+      if (limit.entry.count) await store.del(limit.key);
       return json({ token: signToken({ role: "admin", exp: Date.now() + TOKEN_TTL_MS }) });
     }
 

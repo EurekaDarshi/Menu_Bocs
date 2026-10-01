@@ -79,5 +79,10 @@ token = r.body.token = "eyJleHAiOjF9.faux";
 r = await call("GET", "/admin/data");
 assert.equal(r.status, 401, "jeton falsifié refusé");
 
+// Limitation des tentatives de connexion
+for (let i = 0; i < 8; i++) await call("POST", "/admin/login", { password: "faux" });
+r = await call("POST", "/admin/login", { password: "secret-test" });
+assert.equal(r.status, 429, "connexion bloquée après 8 échecs");
+
 await fs.rm(process.env.LOCAL_DATA_DIR, { recursive: true });
 console.log("✔ Tous les tests API passent");

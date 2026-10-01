@@ -83,13 +83,15 @@
   function render() {
     const { settings, dishes, orders } = state;
     $("h-event").textContent = settings.eventTitle;
-    $("h-ministry").textContent = `Tableau de bord — ${settings.ministryShort}`;
+    $("h-ministry").textContent = `Tableau de bord ${settings.ministryShort}`;
     $("c-dishes").textContent = dishes.length;
     $("c-orders").textContent = orders.length;
     $("s-total").textContent = orders.length;
     $("s-dishes").textContent = dishes.filter((d) => d.available).length;
-    $("s-open").textContent = settings.open ? "Ouvertes" : "Fermées";
-    $("s-open").style.color = settings.open ? "var(--green-600)" : "var(--danger)";
+    $("s-open").textContent = settings.open ? "Ouvert" : "Fermé";
+    $("s-open").style.color = settings.open ? "var(--green)" : "var(--danger)";
+    $("toggle-open").textContent = settings.open ? "Fermer les choix" : "Ouvrir les choix";
+    $("toggle-open").className = `btn btn-sm ${settings.open ? "btn-danger" : "btn-primary"}`;
     renderBars();
     renderDishes();
     renderFilter();
@@ -268,7 +270,7 @@
       `${a.nom} ${a.prenom}`.localeCompare(`${b.nom} ${b.prenom}`, "fr", { sensitivity: "base" })
     );
     const rows = [
-      [`${s.organisation} — ${s.eventTitle}`],
+      [`${s.organisation} - ${s.eventTitle}`],
       [`Ministère accueilli : ${s.ministry} (${s.ministryShort})`],
     ];
     if (s.eventDate) rows.push([`Date : ${s.eventDate}`]);
@@ -303,20 +305,105 @@
     XLSX.writeFile(wb, fileName("xlsx"));
   }
 
-  function exportCsv() {
-    const { rows } = exportRows();
-    const cell = (v) => {
-      let s = String(v ?? "");
-      if (/^[=+\-@]/.test(s)) s = `'${s}`; // évite l'injection de formules
-      return /[";\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
-    };
-    const csv = "﻿" + rows.map((r) => r.map(cell).join(";")).join("\r\n");
-    const url = URL.createObjectURL(new Blob([csv], { type: "text/csv;charset=utf-8" }));
-    const a = el("a", { href: url, download: fileName("csv") });
-    document.body.append(a);
-    a.click();
-    a.remove();
-    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  function exportPdf() {
+    if (!window.jspdf) return toast("Module PDF en cours de chargement, réessayez.", true);
+    const s = state.settings;
+    const t = (v) => String(v ?? "").replace(/[\u2018\u2019]/g, "'").replace(/[\u201c\u201d]/g, '"').replace(/[\u2013\u2014]/g, "-");
+    const doc = new window.jspdf.jsPDF({ unit: "mm", format: "a4" });
+    const W = doc.internal.pageSize.getWidth();
+    const H = doc.internal.pageSize.getHeight();
+    const M = 14;
+    let y = M;
+
+    // En-tête
+    doc.setFont("helvetica", "bold").setFontSize(15).setTextColor(10, 92, 59);
+    doc.text(t(`${s.organisation} - ${s.organisationLong}`), M, y + 4);
+    doc.setFontSize(12).setTextColor(0);
+    doc.text(t(s.eventTitle), M, y + 11);
+    doc.setFont("helvetica", "normal").setFontSize(10);
+    const info = [`Ministère accueilli : ${s.ministry} (${s.ministryShort})`];
+    if (s.eventDate) info.push(`Date : ${s.eventDate}`);
+    if (s.location) info.push(`Lieu : ${s.location}`);
+    info.push(`Liste éditée le ${new Date().toLocaleString("fr-FR", { dateStyle: "long", timeStyle: "short" })}`);
+    y += 17;
+    for (const line of info) {
+      const lines = doc.splitTextToSize(t(line), W - 2 * M);
+      doc.text(lines, M, y);
+      y += lines.length * 5;
+    }
+    y += 3;
+
+    // Tableau générique avec retour à la ligne et saut de page
+    function table(title, columns, rows, opts = {}) {
+      const total = columns.reduce((n, c) => n + c.w, 0);
+      const widths = columns.map((c) => (c.w / total) * (W - 2 * M));
+      const pad = 2;
+      const lineH = 4.6;
+      const drawHeader = () => {
+        doc.setFillColor(237, 244, 240).setDrawColor(160).setLineWidth(0.2);
+        doc.rect(M, y, W - 2 * M, 8, "FD");
+        doc.setFont("helvetica", "bold").setFontSize(9.5).setTextColor(0);
+        let x = M;
+        columns.forEach((c, i) => {
+          doc.text(t(c.label), c.align === "right" ? x + widths[i] - pad : x + pad, y + 5.4, { align: c.align || "left" });
+          x += widths[i];
+        });
+        y += 8;
+      };
+      if (y + 24 > H - M) { doc.addPage(); y = M; }
+      doc.setFont("helvetica", "bold").setFontSize(12).setTextColor(10, 92, 59);
+      doc.text(t(title), M, y + 4);
+      y += 8;
+      drawHeader();
+      rows.forEach((row, r) => {
+        doc.setFont("helvetica", opts.boldLast && r === rows.length - 1 ? "bold" : "normal").setFontSize(9.5).setTextColor(0);
+        const cells = row.map((v, i) => doc.splitTextToSize(t(v), widths[i] - 2 * pad));
+        const h = Math.max(...cells.map((c) => c.length)) * lineH + 3;
+        if (y + h > H - M - 6) { doc.addPage(); y = M; drawHeader(); doc.setFont("helvetica", "normal").setFontSize(9.5); }
+        let x = M;
+        cells.forEach((lines, i) => {
+          doc.setDrawColor(160).rect(x, y, widths[i], h);
+          const c = columns[i];
+          doc.text(lines, c.align === "right" ? x + widths[i] - pad : x + pad, y + 5, { align: c.align || "left" });
+          x += widths[i];
+        });
+        y += h;
+      });
+      y += 8;
+    }
+
+    const counts = dishCounts().filter((r) => r.count || r.available);
+    table(
+      "Récapitulatif par plat",
+      [{ label: "Plat", w: 80 }, { label: "Nombre", w: 20, align: "right" }],
+      [...counts.map((r) => [r.name, String(r.count)]), ["TOTAL", String(state.orders.length)]],
+      { boldLast: true }
+    );
+
+    const people = [...state.orders].sort((a, b) =>
+      `${a.nom} ${a.prenom}`.localeCompare(`${b.nom} ${b.prenom}`, "fr", { sensitivity: "base" })
+    );
+    table(
+      `Liste des participants (${people.length})`,
+      [
+        { label: "N°", w: 7 },
+        { label: "Nom", w: 20 },
+        { label: "Prénom", w: 20 },
+        { label: "Structure", w: 34 },
+        { label: "Plat", w: 26 },
+        { label: "Émargement", w: 18 },
+      ],
+      people.map((o, i) => [String(i + 1), o.nom, o.prenom, o.structure, o.dishName, ""])
+    );
+
+    // Numéros de page
+    const pages = doc.getNumberOfPages();
+    for (let i = 1; i <= pages; i++) {
+      doc.setPage(i);
+      doc.setFont("helvetica", "normal").setFontSize(8.5).setTextColor(110);
+      doc.text(`Page ${i} / ${pages}`, W - M, H - 7, { align: "right" });
+    }
+    doc.save(fileName("pdf"));
   }
 
   // ---------- événements ----------
@@ -398,8 +485,21 @@
     }
   });
 
+  $("toggle-open").addEventListener("click", async () => {
+    const open = !state.settings.open;
+    if (!open && !confirm("Fermer le choix des menus ? Les visiteurs ne pourront plus faire ni modifier de choix.")) return;
+    try {
+      const { settings } = await api("/admin/settings", { method: "PUT", body: { open } });
+      state.settings = settings;
+      render();
+      toast(open ? "Le choix des menus est ouvert" : "Le choix des menus est fermé");
+    } catch (ex) {
+      toast(ex.message, true);
+    }
+  });
+
   $("export-xlsx").addEventListener("click", exportXlsx);
-  $("export-csv").addEventListener("click", exportCsv);
+  $("export-pdf").addEventListener("click", exportPdf);
 
   if (token.get()) refresh();
   else showLogin();
