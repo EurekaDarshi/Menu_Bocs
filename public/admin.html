@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="robots" content="noindex" />
+  <title>Administration — Menu BOCS</title>
+  <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/assets/style.css" />
+</head>
+<body class="admin-body">
+  <div class="flag-stripe"></div>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="/">
+        <div class="brand-mark">BOCS</div>
+        <div class="brand-text">
+          <div class="brand-name">Administration</div>
+          <div class="brand-long">Gestion des menus de l'atelier</div>
+        </div>
+      </a>
+      <div style="display:flex;gap:8px">
+        <a class="btn-admin" href="/" title="Voir le site">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg>
+          <span>Voir le site</span>
+        </a>
+        <button class="btn-admin" id="logout-btn" type="button" hidden title="Se déconnecter">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 4h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-3M10 17l5-5-5-5M15 12H3"/></svg>
+          <span>Déconnexion</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ================= CONNEXION ================= -->
+  <section id="login-view" class="login-wrap" hidden>
+    <form class="card login-card" id="login-form">
+      <div class="brand-mark">BOCS</div>
+      <h1 class="card-title">Espace administrateur</h1>
+      <p class="card-sub">Accès réservé à l'équipe d'organisation.</p>
+      <div id="login-error" class="alert" role="alert" hidden></div>
+      <div class="field">
+        <label for="password">Mot de passe</label>
+        <input class="input" type="password" id="password" autocomplete="current-password" required autofocus />
+      </div>
+      <button class="btn btn-primary btn-block" type="submit" id="login-btn">Se connecter</button>
+    </form>
+  </section>
+
+  <!-- ================= TABLEAU DE BORD ================= -->
+  <main id="dash-view" class="dash" hidden>
+    <div class="dash-head">
+      <div>
+        <div class="eyebrow" id="h-event">Atelier</div>
+        <h1 id="h-ministry">Tableau de bord</h1>
+      </div>
+      <div class="head-actions">
+        <button class="btn btn-gold" id="export-xlsx" type="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg>
+          Télécharger Excel
+        </button>
+        <button class="btn btn-ghost" id="export-csv" type="button">CSV</button>
+      </div>
+    </div>
+
+    <div class="tabs" role="tablist">
+      <button class="tab" role="tab" data-tab="overview" aria-selected="true">Synthèse</button>
+      <button class="tab" role="tab" data-tab="dishes" aria-selected="false">Plats <span class="count" id="c-dishes">0</span></button>
+      <button class="tab" role="tab" data-tab="orders" aria-selected="false">Participants <span class="count" id="c-orders">0</span></button>
+      <button class="tab" role="tab" data-tab="settings" aria-selected="false">Paramètres</button>
+    </div>
+
+    <!-- Synthèse -->
+    <section data-panel="overview">
+      <div class="stats">
+        <div class="card stat accent"><small>Participants inscrits</small><b id="s-total">0</b></div>
+        <div class="card stat"><small>Plats disponibles</small><b id="s-dishes">0</b></div>
+        <div class="card stat"><small>Inscriptions</small><b id="s-open" style="font-size:24px;margin-top:14px">—</b></div>
+      </div>
+      <div class="card panel">
+        <h2>Nombre de plats commandés</h2>
+        <p class="sub">Récapitulatif à transmettre au traiteur.</p>
+        <div class="bars" id="bars"></div>
+      </div>
+    </section>
+
+    <!-- Plats -->
+    <section data-panel="dishes" hidden>
+      <div class="card panel">
+        <h2 id="dish-form-title">Ajouter un plat</h2>
+        <p class="sub">Les plats « disponibles » apparaissent dans la liste déroulante des visiteurs.</p>
+        <form id="dish-form">
+          <div class="row">
+            <div class="field">
+              <label for="d-name">Nom du plat</label>
+              <input class="input" id="d-name" required maxlength="120" placeholder="Ex. Thiéboudienne" />
+            </div>
+            <div class="field">
+              <label for="d-desc">Description <span class="hint">(facultatif)</span></label>
+              <input class="input" id="d-desc" maxlength="300" placeholder="Ex. Riz au poisson, légumes de saison" />
+            </div>
+          </div>
+          <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;justify-content:space-between">
+            <label class="switch"><input type="checkbox" id="d-available" checked /><span class="track"></span>Disponible</label>
+            <div style="display:flex;gap:8px">
+              <button class="btn btn-ghost" type="button" id="dish-cancel" hidden>Annuler</button>
+              <button class="btn btn-primary" type="submit" id="dish-submit">Ajouter le plat</button>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="card panel">
+        <h2>Carte de l'atelier</h2>
+        <p class="sub">Activez ou désactivez un plat à tout moment.</p>
+        <div class="dish-list" id="dish-list"></div>
+      </div>
+    </section>
+
+    <!-- Participants -->
+    <section data-panel="orders" hidden>
+      <div class="card panel">
+        <h2>Participants</h2>
+        <p class="sub">Liste des personnes ayant choisi leur menu.</p>
+        <div class="toolbar">
+          <input class="input" id="search" type="search" placeholder="Rechercher un nom, une structure…" />
+          <select class="select" id="filter-dish"><option value="">Tous les plats</option></select>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>N°</th><th>Nom</th><th>Prénom</th><th>Structure</th><th>Plat</th><th>Date</th><th>Reçu</th><th></th></tr></thead>
+            <tbody id="orders-body"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- Paramètres -->
+    <section data-panel="settings" hidden>
+      <form class="card panel" id="settings-form">
+        <h2>Paramètres de l'atelier</h2>
+        <p class="sub">Ces informations s'affichent sur le site et sur les reçus.</p>
+        <div class="field" style="margin-bottom:22px">
+          <label class="switch"><input type="checkbox" id="st-open" /><span class="track"></span>Inscriptions ouvertes aux visiteurs</label>
+        </div>
+        <div class="row">
+          <div class="field"><label for="st-eventTitle">Intitulé de l'atelier</label><input class="input" id="st-eventTitle" maxlength="200" /></div>
+          <div class="field"><label for="st-eventDate">Date(s) <span class="hint">(texte libre)</span></label><input class="input" id="st-eventDate" maxlength="200" placeholder="Ex. Du 6 au 8 octobre 2026" /></div>
+        </div>
+        <div class="row">
+          <div class="field"><label for="st-ministry">Ministère accueilli</label><input class="input" id="st-ministry" maxlength="200" /></div>
+          <div class="field"><label for="st-ministryShort">Sigle du ministère</label><input class="input" id="st-ministryShort" maxlength="200" /></div>
+        </div>
+        <div class="row">
+          <div class="field"><label for="st-location">Lieu</label><input class="input" id="st-location" maxlength="200" placeholder="Ex. Salle de conférence du BOCS" /></div>
+          <div class="field"><label for="st-organisation">Sigle de l'organisation</label><input class="input" id="st-organisation" maxlength="200" /></div>
+        </div>
+        <div class="field"><label for="st-organisationLong">Nom complet de l'organisation</label><input class="input" id="st-organisationLong" maxlength="200" /></div>
+        <div class="field"><label for="st-welcome">Message d'accueil</label><textarea class="textarea" id="st-welcome" maxlength="600"></textarea></div>
+        <button class="btn btn-primary" type="submit">Enregistrer les paramètres</button>
+      </form>
+
+      <div class="card panel danger-zone">
+        <h2>Nouvel atelier</h2>
+        <p class="sub">Pensez à télécharger le fichier Excel avant. Cette action supprime définitivement toutes les inscriptions (les plats et paramètres sont conservés).</p>
+        <button class="btn btn-danger" type="button" id="reset-orders">Effacer toutes les inscriptions</button>
+      </div>
+    </section>
+  </main>
+
+  <div class="toast" id="toast" role="status"></div>
+
+  <script src="/vendor/xlsx.full.min.js" defer></script>
+  <script src="/assets/admin.js" defer></script>
+</body>
+</html>
