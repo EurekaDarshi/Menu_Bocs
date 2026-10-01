@@ -57,10 +57,10 @@
 
   function showSuccess(order, updated) {
     lastOrder = order;
-    $("success-title").textContent = `Merci, ${order.prenom} !`;
+    $("success-title").textContent = `Merci ${order.prenom}, c'est noté.`;
     $("success-sub").textContent = updated
-      ? "Votre choix a été mis à jour. Vous pouvez télécharger votre nouveau reçu."
-      : "Votre choix a bien été enregistré. Téléchargez votre reçu ci-dessous.";
+      ? "Votre choix a été mis à jour."
+      : "Votre choix a bien été enregistré.";
     $("r-number").textContent = order.receipt;
     $("r-nom").textContent = order.nom;
     $("r-prenom").textContent = order.prenom;

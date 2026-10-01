@@ -1,7 +1,6 @@
 // Génère le reçu PDF d'un participant (jsPDF).
 (function () {
-  const GREEN = [11, 61, 46];
-  const GOLD = [198, 162, 75];
+  const GREEN = [10, 92, 59];
   const INK = [19, 32, 27];
   const MUTED = [93, 106, 100];
 
@@ -32,31 +31,28 @@
 
     // En-tête
     doc.setFillColor(...GREEN);
-    doc.rect(0, 2.5, W, 38, "F");
-    doc.setFillColor(...GOLD);
-    doc.roundedRect(M, 11, 22, 22, 3, 3, "F");
-    doc.setTextColor(...GREEN);
-    doc.setFont("times", "bold");
-    doc.setFontSize(10.5);
-    doc.text(t(settings.organisation || "BOCS"), M + 11, 23.6, { align: "center" });
-
+    doc.rect(M, 10, 16, 16, "F");
     doc.setTextColor(255, 255, 255);
     doc.setFont("helvetica", "bold");
-    doc.setFontSize(13);
-    doc.text(t(settings.organisation || "BOCS"), M + 28, 17);
+    doc.setFontSize(7.5);
+    doc.text(t(settings.organisation || "BOCS"), M + 8, 19.3, { align: "center" });
+    doc.setTextColor(...GREEN);
+    doc.setFontSize(12);
+    doc.text(t(settings.organisation || "BOCS"), M + 21, 15.5);
     doc.setFont("helvetica", "normal");
     doc.setFontSize(8.5);
-    doc.setTextColor(220, 230, 225);
-    doc.text(doc.splitTextToSize(t(settings.organisationLong), W - M * 2 - 28), M + 28, 22.5);
-    doc.setTextColor(...GOLD);
-    doc.setFontSize(8);
-    doc.text(t(settings.eventTitle).toUpperCase(), M + 28, 33);
+    doc.setTextColor(...MUTED);
+    doc.text(doc.splitTextToSize(t(settings.organisationLong), W - M * 2 - 21), M + 21, 20.5);
+    doc.text(t(settings.eventTitle), M + 21, 25);
+    doc.setDrawColor(220, 223, 220);
+    doc.setLineWidth(0.3);
+    doc.line(M, 32, W - M, 32);
 
     // Titre
-    let y = 54;
+    let y = 44;
     doc.setTextColor(...INK);
-    doc.setFont("times", "bold");
-    doc.setFontSize(20);
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(17);
     doc.text("Reçu de choix de menu", M, y);
     y += 7;
     doc.setFont("helvetica", "normal");
@@ -66,13 +62,13 @@
 
     // Invité
     y += 9;
-    doc.setFillColor(245, 236, 211);
+    doc.setFillColor(246, 247, 246);
     const ministryLines = doc.splitTextToSize(t(`${settings.ministry} (${settings.ministryShort})`), W - M * 2 - 10);
     const boxH = 10 + ministryLines.length * 4.4;
     doc.roundedRect(M, y, W - M * 2, boxH, 2.5, 2.5, "F");
     doc.setFontSize(7);
-    doc.setTextColor(120, 96, 36);
-    doc.text("MINISTÈRE ACCUEILLI", M + 5, y + 5.5);
+    doc.setTextColor(...MUTED);
+    doc.text("Ministère accueilli", M + 5, y + 5.5);
     doc.setFont("helvetica", "bold");
     doc.setFontSize(9);
     doc.setTextColor(...INK);
@@ -106,20 +102,21 @@
 
     // Plat
     y += 3;
-    doc.setFillColor(...GREEN);
-    doc.roundedRect(M, y, W - M * 2, 24, 3, 3, "F");
+    doc.setDrawColor(...GREEN);
+    doc.setLineWidth(0.6);
+    doc.rect(M, y, W - M * 2, 24, "S");
     doc.setFont("helvetica", "normal");
     doc.setFontSize(7.5);
-    doc.setTextColor(...GOLD);
-    doc.text("PLAT CHOISI", W / 2, y + 7, { align: "center" });
-    doc.setFont("times", "bold");
-    doc.setFontSize(16);
-    doc.setTextColor(255, 255, 255);
+    doc.setTextColor(...MUTED);
+    doc.text("Plat choisi", W / 2, y + 7, { align: "center" });
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(15);
+    doc.setTextColor(...GREEN);
     doc.text(doc.splitTextToSize(t(order.dishName), W - M * 2 - 10)[0], W / 2, y + 16.5, { align: "center" });
 
     // Pied
-    doc.setDrawColor(...GOLD);
-    doc.setLineWidth(0.4);
+    doc.setDrawColor(220, 223, 220);
+    doc.setLineWidth(0.3);
     doc.line(M, H - 20, W - M, H - 20);
     doc.setFont("helvetica", "normal");
     doc.setFontSize(7.5);
