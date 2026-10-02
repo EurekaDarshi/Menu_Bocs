@@ -53,11 +53,27 @@ async function getSettings(store) {
 async function getDishes(store) {
   return (await store.get("dishes")) || [];
 }
+// Lecture des inscriptions par lots (évite de saturer le stockage avec des centaines
+// de requêtes simultanées) avec une nouvelle tentative en cas d'erreur passagère.
 async function getOrders(store) {
   const keys = await store.list("orders/");
-  const orders = (await Promise.all(keys.map((k) => store.get(k)))).filter(Boolean);
+  const orders = [];
+  for (let i = 0; i < keys.length; i += 25) {
+    const batch = await Promise.all(
+      keys.slice(i, i + 25).map(async (k) => {
+        try {
+          return await store.get(k);
+        } catch {
+          return store.get(k);
+        }
+      })
+    );
+    orders.push(...batch.filter(Boolean));
+  }
   return orders.sort((a, b) => a.createdAt.localeCompare(b.createdAt));
 }
+
+const publicOrder = ({ editKey, ...order }) => order;
 
 // ---------- authentification admin ----------
 // Le mot de passe fait partie de la clé de signature : le changer déconnecte toutes les sessions admin.
@@ -138,7 +154,7 @@ export async function handle(req) {
     }
 
     if (route === "/orders" && method === "POST") {
-      const limit = await overLimit(store, "orders", req, 150, 10 * 60 * 1000);
+      const limit = await overLimit(store, "orders", req, 600, 10 * 60 * 1000);
       if (limit.blocked) return fail("Trop de demandes depuis ce réseau. Réessayez dans quelques minutes.", 429);
       await hit(store, limit);
       const input = await body(req);
@@ -157,6 +173,16 @@ export async function handle(req) {
       const key = `orders/${id}`;
       const existing = await store.get(key);
       const now = new Date().toISOString();
+
+      // « Modifier mon choix » avec un nom ou une structure corrigés : l'ancienne inscription
+      // est supprimée (uniquement avec la clé secrète remise lors de cette inscription).
+      const replace = input.replace || {};
+      if (typeof replace.id === "string" && /^[a-f0-9]{24}$/.test(replace.id) && replace.id !== id) {
+        const previous = await store.get(`orders/${replace.id}`);
+        if (previous?.editKey && typeof replace.key === "string" && replace.key === previous.editKey) {
+          await store.del(`orders/${replace.id}`);
+        }
+      }
       const order = {
         id,
         receipt: `${clean(settings.organisation, 12).toUpperCase() || "BOCS"}-${id.slice(0, 8).toUpperCase()}`,
@@ -167,6 +193,7 @@ export async function handle(req) {
         dishName: dish.name,
         createdAt: existing?.createdAt || now,
         updatedAt: now,
+        editKey: existing?.editKey || crypto.randomBytes(16).toString("hex"),
       };
       await store.set(key, order);
       return json({ order, updated: Boolean(existing), settings }, existing ? 200 : 201);
@@ -197,7 +224,12 @@ export async function handle(req) {
           getDishes(store),
           getOrders(store),
         ]);
-        return json({ settings, dishes, orders });
+        const names = Object.fromEntries(dishes.map((d) => [d.id, d.name]));
+        return json({
+          settings,
+          dishes,
+          orders: orders.map((o) => publicOrder({ ...o, dishName: names[o.dishId] || o.dishName })),
+        });
       }
 
       if (route === "/admin/settings" && method === "PUT") {

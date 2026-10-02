@@ -4,6 +4,7 @@
   let settings = null;
   let dishes = [];
   let lastOrder = null;
+  let editing = false; // vrai seulement après « Modifier mon choix »
 
   const storage = {
     get() {
@@ -112,6 +113,9 @@
       structure: $("structure").value.trim(),
       dishId: $("dish").value,
     };
+    // Modification : on transmet l'inscription précédente pour qu'elle soit remplacée
+    // si le nom, le prénom ou la structure ont été corrigés.
+    if (editing && lastOrder?.id && lastOrder?.editKey) payload.replace = { id: lastOrder.id, key: lastOrder.editKey };
     if (!payload.nom || !payload.prenom || !payload.structure) return showError("Merci de renseigner votre nom, prénom et structure.");
     if (!payload.dishId) return showError("Merci de choisir un plat dans la liste.");
 
@@ -130,6 +134,7 @@
         return;
       }
       settings = data.settings || settings;
+      editing = false;
       storage.set({ order: data.order, settings });
       showSuccess(data.order, data.updated);
     } catch {
@@ -147,7 +152,15 @@
       download(last.order);
     }
   });
+  $("new-btn").addEventListener("click", () => {
+    editing = false;
+    $("order-form").reset();
+    updatePreview();
+    show("order-form");
+    document.querySelector(".order-card").scrollIntoView({ behavior: "smooth", block: "start" });
+  });
   $("again-btn").addEventListener("click", () => {
+    editing = true;
     $("dish").value = lastOrder ? lastOrder.dishId : "";
     updatePreview();
     show("order-form");
