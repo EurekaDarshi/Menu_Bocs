@@ -161,18 +161,32 @@ export async function handle(req) {
       const nom = clean(input.nom, 80);
       const prenom = clean(input.prenom, 80);
       const structure = clean(input.structure, 160);
+      const fonction = clean(input.fonction, 120); // facultatif : distingue les homonymes
       if (!nom || !prenom || !structure) return fail("Merci de renseigner votre nom, prénom et structure.");
 
       const [settings, dishes] = await Promise.all([getSettings(store), getDishes(store)]);
       if (!settings.open) return fail("Les inscriptions sont fermées pour cet atelier.", 403);
       const dish = dishes.find((d) => d.id === input.dishId && d.available);
-      if (!dish) return fail("Ce plat n'est plus disponible. Merci d'en choisir un autre.", 409);
+      if (!dish) return json({ error: "Ce plat n'est plus disponible. Merci d'en choisir un autre.", code: "dish" }, 409);
 
       // Une personne (nom + prénom + structure) = un choix : une nouvelle soumission met à jour l'ancienne.
-      const id = sha(`${normalise(nom)}|${normalise(prenom)}|${normalise(structure)}`).slice(0, 24);
+      // Sans fonction, l'identifiant reste celui des inscriptions déjà enregistrées.
+      const identity = `${normalise(nom)}|${normalise(prenom)}|${normalise(structure)}`;
+      const id = sha(fonction ? `${identity}|${normalise(fonction)}` : identity).slice(0, 24);
       const key = `orders/${id}`;
       const existing = await store.get(key);
       const now = new Date().toISOString();
+
+      // Une inscription existante n'est modifiable que depuis le téléphone qui l'a créée
+      // (clé secrète) : un homonyme ne peut donc pas écraser le choix d'une autre personne.
+      if (existing && existing.editKey && input.editKey !== existing.editKey) {
+        return fail(
+          fonction
+            ? "Une inscription existe déjà avec ces nom, prénom, structure et fonction. Pour la modifier, adressez-vous à l'équipe d'organisation."
+            : "Une inscription existe déjà avec ces nom, prénom et structure. S'il s'agit d'une autre personne (homonyme), indiquez votre fonction pour vous distinguer. Si c'est vous, votre choix est déjà enregistré : pour le modifier, adressez-vous à l'équipe d'organisation.",
+          409
+        );
+      }
 
       // « Modifier mon choix » avec un nom ou une structure corrigés : l'ancienne inscription
       // est supprimée (uniquement avec la clé secrète remise lors de cette inscription).
@@ -189,6 +203,7 @@ export async function handle(req) {
         nom: nom.toUpperCase(),
         prenom,
         structure,
+        fonction,
         dishId: dish.id,
         dishName: dish.name,
         createdAt: existing?.createdAt || now,

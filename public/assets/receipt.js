@@ -80,6 +80,7 @@
       ["Nom", order.nom],
       ["Prénom", order.prenom],
       ["Structure", order.structure],
+      ...(order.fonction ? [["Fonction", order.fonction]] : []),
       ["Enregistré le", formatDate(order.updatedAt || order.createdAt)],
     ];
     if (settings.eventDate) rows.push(["Date de l'atelier", settings.eventDate]);

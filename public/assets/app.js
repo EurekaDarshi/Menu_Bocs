@@ -60,13 +60,13 @@
   function showSuccess(order, updated) {
     lastOrder = order;
     $("success-title").textContent = `Merci ${order.prenom}, c'est noté.`;
-    $("success-sub").textContent = updated
-      ? "Votre choix a été mis à jour."
-      : "Votre choix a bien été enregistré.";
+    $("success-sub").textContent = updated ? "Votre choix a été mis à jour." : "Votre choix a bien été enregistré.";
     $("r-number").textContent = order.receipt;
     $("r-nom").textContent = order.nom;
     $("r-prenom").textContent = order.prenom;
     $("r-structure").textContent = order.structure;
+    $("r-fonction").textContent = order.fonction || "";
+    $("r-fonction").hidden = $("r-fonction-label").hidden = !order.fonction;
     $("r-dish").textContent = order.dishName;
     $("r-date").textContent = new Date(order.updatedAt).toLocaleString("fr-FR", { dateStyle: "medium", timeStyle: "short" });
     show("success");
@@ -111,10 +111,15 @@
       nom: $("nom").value.trim(),
       prenom: $("prenom").value.trim(),
       structure: $("structure").value.trim(),
+      fonction: $("fonction").value.trim(),
       dishId: $("dish").value,
     };
     // Modification : on transmet l'inscription précédente pour qu'elle soit remplacée
     // si le nom, le prénom ou la structure ont été corrigés.
+    // Clé de la dernière inscription faite sur ce téléphone : autorise sa mise à jour.
+    const stored = storage.get();
+    const own = lastOrder || (stored && stored.order);
+    if (own && own.editKey) payload.editKey = own.editKey;
     if (editing && lastOrder && lastOrder.id && lastOrder.editKey) payload.replace = { id: lastOrder.id, key: lastOrder.editKey };
     if (!payload.nom || !payload.prenom || !payload.structure) return showError("Merci de renseigner votre nom, prénom et structure.");
     if (!payload.dishId) return showError("Merci de choisir un plat dans la liste.");
@@ -130,7 +135,7 @@
       const data = await res.json().catch(() => ({}));
       if (!res.ok) {
         showError(data.error || "Une erreur est survenue. Merci de réessayer.");
-        if (res.status === 409 || res.status === 403) load();
+        if (res.status === 403 || data.code === "dish") load();
         return;
       }
       settings = data.settings || settings;

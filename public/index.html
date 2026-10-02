@@ -70,7 +70,7 @@
         <!-- formulaire -->
         <form id="order-form" hidden novalidate>
           <h2 class="card-title">Vos informations</h2>
-          <p class="card-sub">Tous les champs sont obligatoires.</p>
+          <p class="card-sub">Tous les champs sont obligatoires, sauf la fonction.</p>
           <div id="form-error" class="alert" role="alert" hidden></div>
           <div class="row">
             <div class="field">
@@ -85,6 +85,10 @@
           <div class="field">
             <label for="structure">Structure</label>
             <input class="input" id="structure" name="structure" autocomplete="organization" autocapitalize="sentences" enterkeyhint="next" required maxlength="160" placeholder="Ex. MASAE, Direction de l'Agriculture" />
+          </div>
+          <div class="field">
+            <label for="fonction">Fonction <span class="hint">(facultatif)</span></label>
+            <input class="input" id="fonction" name="fonction" autocomplete="organization-title" autocapitalize="sentences" enterkeyhint="next" maxlength="120" placeholder="Ex. Chef de division" />
           </div>
           <div class="field">
             <label for="dish">Votre plat</label>
@@ -115,6 +119,7 @@
               <dt>Nom</dt><dd id="r-nom"></dd>
               <dt>Prénom</dt><dd id="r-prenom"></dd>
               <dt>Structure</dt><dd id="r-structure"></dd>
+              <dt id="r-fonction-label">Fonction</dt><dd id="r-fonction"></dd>
               <dt>Plat choisi</dt><dd id="r-dish" class="dish"></dd>
               <dt>Enregistré le</dt><dd id="r-date"></dd>
             </dl>
