@@ -5,9 +5,11 @@ Petit site permettant aux visiteurs du **BOCS** (Bureau Opérationnel de Coordin
 ## Fonctionnalités
 
 **Visiteurs** (`/`)
-- Saisie du nom, prénom, structure et choix du plat dans une liste déroulante
+- Saisie du nom, prénom, structure, fonction (facultative) et choix du plat dans une liste déroulante
 - Reçu affiché à l'écran + **téléchargement du reçu en PDF**
-- Une même personne (nom + prénom + structure) peut modifier son choix : l'inscription est mise à jour, pas dupliquée
+- « Modifier mon choix » met à jour l'inscription (même si le nom est corrigé), sans doublon
+- « Nouvelle inscription (autre personne) » pour un téléphone partagé
+- Une inscription n'est modifiable que depuis le téléphone qui l'a créée : un homonyme ne peut pas écraser le choix d'un autre (il est invité à préciser sa fonction)
 
 **Administrateur** (`/admin.html`, bouton « Espace admin » en haut à droite)
 - Connexion par mot de passe (bloquée 15 min après 8 tentatives échouées)
@@ -18,6 +20,8 @@ Petit site permettant aux visiteurs du **BOCS** (Bureau Opérationnel de Coordin
 - Ouverture / fermeture du choix des menus en un clic depuis la synthèse
 - Paramètres de l'atelier (ministère accueilli, dates, lieu, message d'accueil, ouverture/fermeture des inscriptions)
 - Remise à zéro des inscriptions pour l'atelier suivant
+
+**Sécurité** : connexion admin bloquée 15 min après 8 échecs, limitation des envois, sessions signées (12 h) invalidées au changement de mot de passe, en-têtes de sécurité (CSP, HSTS) définis dans `netlify.toml`.
 
 ## Architecture
 
@@ -60,6 +64,13 @@ npm test        # tests de l'API
 ```
 
 En local les données sont enregistrées dans `.data/` (ignoré par git).
+
+## Site en ligne
+
+- Visiteurs : https://menu-bocs.netlify.app
+- Admin : https://menu-bocs.netlify.app/admin.html (mot de passe : variable `ADMIN_PASSWORD` du site Netlify)
+
+Le site est déployé avec `netlify deploy --prod` (il n'est pas relié au dépôt) : une modification poussée sur GitHub doit être redéployée, ou le dépôt relié dans Netlify (Project configuration → Build & deploy → Link repository).
 
 ## Pousser le dépôt sur GitLab
 
