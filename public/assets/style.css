@@ -340,6 +340,7 @@ body { padding-bottom: env(safe-area-inset-bottom); }
   .table-wrap .wrap-cell { grid-column: 1; color: var(--muted); font-size: 14.5px; }
   .table-wrap .cell-dish { grid-column: 1; font-weight: 600; color: var(--green-dark); }
   .table-wrap td[data-label="Date"] { grid-column: 1; font-size: 13px; }
+  .table-wrap td[data-label="Téléphone"] { grid-column: 1; font-size: 14px; }
   .table-wrap td.empty { grid-column: 1 / -1; }
   .icon-btn { padding: 10px; }
   .toolbar .input, .toolbar .select { min-width: 0; flex-basis: 100%; }

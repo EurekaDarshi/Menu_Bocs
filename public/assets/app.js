@@ -4,7 +4,6 @@
   let settings = null;
   let dishes = [];
   let lastOrder = null;
-  let editing = false; // vrai seulement après « Modifier mon choix »
 
   const storage = {
     get() {
@@ -59,7 +58,7 @@
 
   function showSuccess(order, updated) {
     lastOrder = order;
-    $("success-title").textContent = `Merci ${order.prenom}, c'est noté.`;
+    $("success-title").textContent = "Inscription réussie";
     $("success-sub").textContent = updated ? "Votre choix a été mis à jour." : "Votre choix a bien été enregistré.";
     $("r-number").textContent = order.receipt;
     $("r-nom").textContent = order.nom;
@@ -67,6 +66,7 @@
     $("r-structure").textContent = order.structure;
     $("r-fonction").textContent = order.fonction || "";
     $("r-fonction").hidden = $("r-fonction-label").hidden = !order.fonction;
+    $("r-telephone").textContent = order.telephone || "";
     $("r-dish").textContent = order.dishName;
     $("r-date").textContent = new Date(order.updatedAt).toLocaleString("fr-FR", { dateStyle: "medium", timeStyle: "short" });
     show("success");
@@ -112,16 +112,12 @@
       prenom: $("prenom").value.trim(),
       structure: $("structure").value.trim(),
       fonction: $("fonction").value.trim(),
+      telephone: $("telephone").value.trim(),
       dishId: $("dish").value,
     };
-    // Modification : on transmet l'inscription précédente pour qu'elle soit remplacée
-    // si le nom, le prénom ou la structure ont été corrigés.
-    // Clé de la dernière inscription faite sur ce téléphone : autorise sa mise à jour.
-    const stored = storage.get();
-    const own = lastOrder || (stored && stored.order);
-    if (own && own.editKey) payload.editKey = own.editKey;
-    if (editing && lastOrder && lastOrder.id && lastOrder.editKey) payload.replace = { id: lastOrder.id, key: lastOrder.editKey };
     if (!payload.nom || !payload.prenom || !payload.structure) return showError("Merci de renseigner votre nom, prénom et structure.");
+    const digits = payload.telephone.replace(/\D/g, "");
+    if (digits.length < 8 || digits.length > 15) return showError("Merci de renseigner un numéro de téléphone valide (ex. 77 123 45 67).");
     if (!payload.dishId) return showError("Merci de choisir un plat dans la liste.");
 
     const btn = $("submit-btn");
@@ -139,7 +135,6 @@
         return;
       }
       settings = data.settings || settings;
-      editing = false;
       storage.set({ order: data.order, settings });
       showSuccess(data.order, data.updated);
     } catch {
@@ -157,21 +152,6 @@
       download(last.order);
     }
   });
-  $("new-btn").addEventListener("click", () => {
-    editing = false;
-    $("order-form").reset();
-    updatePreview();
-    show("order-form");
-    document.querySelector(".order-card").scrollIntoView({ behavior: "smooth", block: "start" });
-  });
-  $("again-btn").addEventListener("click", () => {
-    editing = true;
-    $("dish").value = lastOrder ? lastOrder.dishId : "";
-    updatePreview();
-    show("order-form");
-    document.querySelector(".order-card").scrollIntoView({ behavior: "smooth", block: "start" });
-  });
-
   $("year").textContent = new Date().getFullYear();
   load();
 })();

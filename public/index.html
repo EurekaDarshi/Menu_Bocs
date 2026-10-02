@@ -87,6 +87,10 @@
             <input class="input" id="structure" name="structure" autocomplete="organization" autocapitalize="sentences" enterkeyhint="next" required maxlength="160" placeholder="Ex. MASAE, Direction de l'Agriculture" />
           </div>
           <div class="field">
+            <label for="telephone">Téléphone</label>
+            <input class="input" id="telephone" name="telephone" type="tel" inputmode="tel" autocomplete="tel" enterkeyhint="next" required maxlength="20" placeholder="Ex. 77 123 45 67" />
+          </div>
+          <div class="field">
             <label for="fonction">Fonction <span class="hint">(facultatif)</span></label>
             <input class="input" id="fonction" name="fonction" autocomplete="organization-title" autocapitalize="sentences" enterkeyhint="next" maxlength="120" placeholder="Ex. Chef de division" />
           </div>
@@ -111,7 +115,7 @@
           <div class="success-icon">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>
           </div>
-          <h2 class="card-title" id="success-title">Merci !</h2>
+          <h2 class="card-title" id="success-title">Inscription réussie</h2>
           <p class="card-sub" id="success-sub" style="margin:0">Votre choix a bien été enregistré.</p>
           <div class="ticket">
             <div class="ticket-head"><span>Reçu de choix de menu</span><b id="r-number"></b></div>
@@ -120,6 +124,7 @@
               <dt>Prénom</dt><dd id="r-prenom"></dd>
               <dt>Structure</dt><dd id="r-structure"></dd>
               <dt id="r-fonction-label">Fonction</dt><dd id="r-fonction"></dd>
+              <dt>Téléphone</dt><dd id="r-telephone"></dd>
               <dt>Plat choisi</dt><dd id="r-dish" class="dish"></dd>
               <dt>Enregistré le</dt><dd id="r-date"></dd>
             </dl>
@@ -127,11 +132,10 @@
           <div class="actions">
             <button class="btn btn-gold" type="button" id="download-btn">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg>
-              Télécharger le reçu (PDF)
+              Télécharger votre reçu
             </button>
-            <button class="btn btn-ghost" type="button" id="again-btn">Modifier mon choix</button>
-            <button class="btn btn-ghost" type="button" id="new-btn">Nouvelle inscription (autre personne)</button>
           </div>
+          <p class="privacy">Pour changer de plat avant la clôture, rouvrez cette page et refaites l'inscription avec le même numéro de téléphone : votre choix sera mis à jour.</p>
         </div>
 
         <!-- fermé -->

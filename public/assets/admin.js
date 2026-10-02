@@ -160,10 +160,10 @@
     const rows = state.orders.filter(
       (o) =>
         (!dishId || o.dishId === dishId) &&
-        (!q || `${o.nom} ${o.prenom} ${o.structure} ${o.fonction || ""} ${o.receipt}`.toLowerCase().includes(q))
+        (!q || `${o.nom} ${o.prenom} ${o.structure} ${o.fonction || ""} ${o.telephone || ""} ${(o.telephone || "").replace(/\D/g, "")} ${o.receipt}`.toLowerCase().includes(q))
     );
     if (!rows.length) {
-      body.append(el("tr", {}, el("td", { colspan: 7, class: "empty" }, state.orders.length ? "Aucun résultat." : "Aucune inscription pour le moment.")));
+      body.append(el("tr", {}, el("td", { colspan: 8, class: "empty" }, state.orders.length ? "Aucun résultat." : "Aucune inscription pour le moment.")));
       return;
     }
     rows.forEach((o, i) => {
@@ -175,6 +175,7 @@
           el("td", { class: "cell-name" }, el("b", {}, `${o.nom} ${o.prenom}`)),
           el("td", { class: "wrap-cell", "data-label": "Structure" }, o.fonction ? `${o.structure} (${o.fonction})` : o.structure),
           el("td", { class: "cell-dish", "data-label": "Plat" }, o.dishName),
+          el("td", { class: "mono", "data-label": "Téléphone" }, o.telephone || ""),
           el("td", { class: "mono", "data-label": "Date" }, fmtDate(o.updatedAt)),
           el("td", { class: "mono", "data-label": "Reçu" }, o.receipt),
           el("td", { class: "cell-del" }, del)
@@ -279,8 +280,8 @@
     for (const r of counts) rows.push([r.name, r.count]);
     rows.push(["TOTAL", state.orders.length], []);
     const listStart = rows.length;
-    rows.push(["LISTE DES PARTICIPANTS"], ["N°", "Nom", "Prénom", "Structure", "Fonction", "Plat choisi", "Date d'inscription", "N° de reçu"]);
-    people.forEach((o, i) => rows.push([i + 1, o.nom, o.prenom, o.structure, o.fonction || "", o.dishName, fmtDate(o.updatedAt), o.receipt]));
+    rows.push(["LISTE DES PARTICIPANTS"], ["N°", "Nom", "Prénom", "Structure", "Fonction", "Téléphone", "Plat choisi", "Date d'inscription", "N° de reçu"]);
+    people.forEach((o, i) => rows.push([i + 1, o.nom, o.prenom, o.structure, o.fonction || "", o.telephone || "", o.dishName, fmtDate(o.updatedAt), o.receipt]));
     return { rows, listStart };
   }
 
@@ -294,11 +295,11 @@
     if (!window.XLSX) return toast("Module Excel en cours de chargement, réessayez.", true);
     const { rows, listStart } = exportRows();
     const ws = XLSX.utils.aoa_to_sheet(rows);
-    ws["!cols"] = [{ wch: 30 }, { wch: 22 }, { wch: 20 }, { wch: 40 }, { wch: 26 }, { wch: 28 }, { wch: 18 }, { wch: 16 }];
+    ws["!cols"] = [{ wch: 30 }, { wch: 22 }, { wch: 20 }, { wch: 40 }, { wch: 26 }, { wch: 16 }, { wch: 28 }, { wch: 18 }, { wch: 16 }];
     ws["!merges"] = rows
-      .map((r, i) => (r.length === 1 ? { s: { r: i, c: 0 }, e: { r: i, c: 7 } } : null))
+      .map((r, i) => (r.length === 1 ? { s: { r: i, c: 0 }, e: { r: i, c: 8 } } : null))
       .filter(Boolean);
-    ws["!autofilter"] = { ref: XLSX.utils.encode_range({ s: { r: listStart + 1, c: 0 }, e: { r: rows.length - 1, c: 7 } }) };
+    ws["!autofilter"] = { ref: XLSX.utils.encode_range({ s: { r: listStart + 1, c: 0 }, e: { r: rows.length - 1, c: 8 } }) };
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, "Menus");
     XLSX.writeFile(wb, fileName("xlsx"));

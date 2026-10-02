@@ -46,6 +46,19 @@ function normalise(value) {
 
 const sha = (s) => crypto.createHash("sha256").update(s).digest("hex");
 
+// Numéro de téléphone : « 77 123 45 67 », « +221 77 123 45 67 » et « 00221771234567 »
+// désignent le même numéro. Les numéros étrangers (8 à 15 chiffres) sont acceptés.
+function normalisePhone(value) {
+  let digits = String(value ?? "").replace(/\D/g, "");
+  if (digits.startsWith("00")) digits = digits.slice(2);
+  if (digits.length === 12 && digits.startsWith("221")) digits = digits.slice(3);
+  if (digits.length === 9) {
+    return { key: `221${digits}`, display: digits.replace(/^(\d{2})(\d{3})(\d{2})(\d{2})$/, "$1 $2 $3 $4") };
+  }
+  if (digits.length >= 8 && digits.length <= 15) return { key: digits, display: `+${digits}` };
+  return null;
+}
+
 // ---------- données ----------
 async function getSettings(store) {
   return { ...DEFAULT_SETTINGS, ...((await store.get("settings")) || {}) };
@@ -73,7 +86,7 @@ async function getOrders(store) {
   return orders.sort((a, b) => a.createdAt.localeCompare(b.createdAt));
 }
 
-const publicOrder = ({ editKey, ...order }) => order;
+const publicOrder = ({ editKey, ...order }) => order; // editKey : anciennes inscriptions
 
 // ---------- authentification admin ----------
 // Le mot de passe fait partie de la clé de signature : le changer déconnecte toutes les sessions admin.
@@ -161,42 +174,22 @@ export async function handle(req) {
       const nom = clean(input.nom, 80);
       const prenom = clean(input.prenom, 80);
       const structure = clean(input.structure, 160);
-      const fonction = clean(input.fonction, 120); // facultatif : distingue les homonymes
+      const fonction = clean(input.fonction, 120); // facultatif
+      const phone = normalisePhone(input.telephone);
       if (!nom || !prenom || !structure) return fail("Merci de renseigner votre nom, prénom et structure.");
+      if (!phone) return fail("Merci de renseigner un numéro de téléphone valide (ex. 77 123 45 67).");
 
       const [settings, dishes] = await Promise.all([getSettings(store), getDishes(store)]);
-      if (!settings.open) return fail("Les inscriptions sont fermées pour cet atelier.", 403);
+      if (!settings.open) return fail("Le choix des menus est clôturé pour cet atelier.", 403);
       const dish = dishes.find((d) => d.id === input.dishId && d.available);
       if (!dish) return json({ error: "Ce plat n'est plus disponible. Merci d'en choisir un autre.", code: "dish" }, 409);
 
-      // Une personne (nom + prénom + structure) = un choix : une nouvelle soumission met à jour l'ancienne.
-      // Sans fonction, l'identifiant reste celui des inscriptions déjà enregistrées.
-      const identity = `${normalise(nom)}|${normalise(prenom)}|${normalise(structure)}`;
-      const id = sha(fonction ? `${identity}|${normalise(fonction)}` : identity).slice(0, 24);
+      // Un numéro de téléphone = une inscription : renvoyer le formulaire avec le même numéro
+      // met à jour le choix (tant que les choix ne sont pas clôturés).
+      const id = sha(`tel|${phone.key}`).slice(0, 24);
       const key = `orders/${id}`;
       const existing = await store.get(key);
       const now = new Date().toISOString();
-
-      // Une inscription existante n'est modifiable que depuis le téléphone qui l'a créée
-      // (clé secrète) : un homonyme ne peut donc pas écraser le choix d'une autre personne.
-      if (existing && existing.editKey && input.editKey !== existing.editKey) {
-        return fail(
-          fonction
-            ? "Une inscription existe déjà avec ces nom, prénom, structure et fonction. Pour la modifier, adressez-vous à l'équipe d'organisation."
-            : "Une inscription existe déjà avec ces nom, prénom et structure. S'il s'agit d'une autre personne (homonyme), indiquez votre fonction pour vous distinguer. Si c'est vous, votre choix est déjà enregistré : pour le modifier, adressez-vous à l'équipe d'organisation.",
-          409
-        );
-      }
-
-      // « Modifier mon choix » avec un nom ou une structure corrigés : l'ancienne inscription
-      // est supprimée (uniquement avec la clé secrète remise lors de cette inscription).
-      const replace = input.replace || {};
-      if (typeof replace.id === "string" && /^[a-f0-9]{24}$/.test(replace.id) && replace.id !== id) {
-        const previous = await store.get(`orders/${replace.id}`);
-        if (previous?.editKey && typeof replace.key === "string" && replace.key === previous.editKey) {
-          await store.del(`orders/${replace.id}`);
-        }
-      }
       const order = {
         id,
         receipt: `${clean(settings.organisation, 12).toUpperCase() || "BOCS"}-${id.slice(0, 8).toUpperCase()}`,
@@ -204,11 +197,11 @@ export async function handle(req) {
         prenom,
         structure,
         fonction,
+        telephone: phone.display,
         dishId: dish.id,
         dishName: dish.name,
         createdAt: existing?.createdAt || now,
         updatedAt: now,
-        editKey: existing?.editKey || crypto.randomBytes(16).toString("hex"),
       };
       await store.set(key, order);
       return json({ order, updated: Boolean(existing), settings }, existing ? 200 : 201);

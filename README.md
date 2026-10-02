@@ -5,18 +5,16 @@ Petit site permettant aux visiteurs du **BOCS** (Bureau Opérationnel de Coordin
 ## Fonctionnalités
 
 **Visiteurs** (`/`)
-- Saisie du nom, prénom, structure, fonction (facultative) et choix du plat dans une liste déroulante
-- Reçu affiché à l'écran + **téléchargement du reçu en PDF**
-- « Modifier mon choix » met à jour l'inscription (même si le nom est corrigé), sans doublon
-- « Nouvelle inscription (autre personne) » pour un téléphone partagé
-- Une inscription n'est modifiable que depuis le téléphone qui l'a créée : un homonyme ne peut pas écraser le choix d'un autre (il est invité à préciser sa fonction)
+- Saisie du nom, prénom, structure, **téléphone**, fonction (facultative) et choix du plat
+- Message « Inscription réussie » + **téléchargement du reçu en PDF**
+- **Le numéro de téléphone identifie chaque personne** : refaire l'inscription avec le même numéro met à jour le choix (tant que les choix ne sont pas clôturés). « 77 123 45 67 », « +221 77 123 45 67 » et « 00221771234567 » sont reconnus comme le même numéro ; les numéros étrangers sont acceptés
 
 **Administrateur** (`/admin.html`, bouton « Espace admin » en haut à droite)
 - Connexion par mot de passe (bloquée 15 min après 8 tentatives échouées)
 - Ajout / modification / suppression des plats, activation ou désactivation de leur disponibilité
 - Synthèse du nombre de plats commandés
 - Liste des participants avec recherche et filtre par plat
-- **PDF à imprimer** et **Excel (.xlsx)** : récapitulatif du nombre de chaque plat en haut, puis la liste nominative (avec colonne d'émargement dans le PDF)
+- **PDF à imprimer** et **Excel (.xlsx)** : récapitulatif du nombre de chaque plat en haut, puis la liste nominative (colonne d'émargement dans le PDF ; téléphones uniquement dans l'Excel)
 - Ouverture / fermeture du choix des menus en un clic depuis la synthèse
 - Paramètres de l'atelier (ministère accueilli, dates, lieu, message d'accueil, ouverture/fermeture des inscriptions)
 - Remise à zéro des inscriptions pour l'atelier suivant
