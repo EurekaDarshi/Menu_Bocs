@@ -6,7 +6,7 @@
 
   // Les polices standard PDF ne connaissent pas certains signes typographiques.
   const t = (s) =>
-    String(s ?? "")
+    String(s == null ? "" : s)
       .replace(/[‘’]/g, "'")
       .replace(/[“”]/g, '"')
       .replace(/[–—]/g, "-")

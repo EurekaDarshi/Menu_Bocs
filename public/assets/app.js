@@ -115,7 +115,7 @@
     };
     // Modification : on transmet l'inscription précédente pour qu'elle soit remplacée
     // si le nom, le prénom ou la structure ont été corrigés.
-    if (editing && lastOrder?.id && lastOrder?.editKey) payload.replace = { id: lastOrder.id, key: lastOrder.editKey };
+    if (editing && lastOrder && lastOrder.id && lastOrder.editKey) payload.replace = { id: lastOrder.id, key: lastOrder.editKey };
     if (!payload.nom || !payload.prenom || !payload.structure) return showError("Merci de renseigner votre nom, prénom et structure.");
     if (!payload.dishId) return showError("Merci de choisir un plat dans la liste.");
 
