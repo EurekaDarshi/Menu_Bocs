@@ -46,17 +46,12 @@ function normalise(value) {
 
 const sha = (s) => crypto.createHash("sha256").update(s).digest("hex");
 
-// Numéro de téléphone : « 77 123 45 67 », « +221 77 123 45 67 » et « 00221771234567 »
-// désignent le même numéro. Les numéros étrangers (8 à 15 chiffres) sont acceptés.
+// Numéro de téléphone au format national sénégalais : 9 chiffres commençant par 7 ou 3,
+// enregistré sous la forme « 77 123 45 67 ».
 function normalisePhone(value) {
-  let digits = String(value ?? "").replace(/\D/g, "");
-  if (digits.startsWith("00")) digits = digits.slice(2);
-  if (digits.length === 12 && digits.startsWith("221")) digits = digits.slice(3);
-  if (digits.length === 9) {
-    return { key: `221${digits}`, display: digits.replace(/^(\d{2})(\d{3})(\d{2})(\d{2})$/, "$1 $2 $3 $4") };
-  }
-  if (digits.length >= 8 && digits.length <= 15) return { key: digits, display: `+${digits}` };
-  return null;
+  const digits = String(value ?? "").replace(/[\s.-]/g, "");
+  if (!/^[37]\d{8}$/.test(digits)) return null;
+  return { key: `221${digits}`, display: digits.replace(/^(\d{2})(\d{3})(\d{2})(\d{2})$/, "$1 $2 $3 $4") };
 }
 
 // ---------- données ----------
@@ -177,7 +172,7 @@ export async function handle(req) {
       const fonction = clean(input.fonction, 120); // facultatif
       const phone = normalisePhone(input.telephone);
       if (!nom || !prenom || !structure) return fail("Merci de renseigner votre nom, prénom et structure.");
-      if (!phone) return fail("Merci de renseigner un numéro de téléphone valide (ex. 77 123 45 67).");
+      if (!phone) return fail("Numéro de téléphone invalide : 9 chiffres au format 77 123 45 67.");
 
       const [settings, dishes] = await Promise.all([getSettings(store), getDishes(store)]);
       if (!settings.open) return fail("Le choix des menus est clôturé pour cet atelier.", 403);

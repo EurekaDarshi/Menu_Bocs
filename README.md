@@ -7,7 +7,7 @@ Petit site permettant aux visiteurs du **BOCS** (Bureau Opérationnel de Coordin
 **Visiteurs** (`/`)
 - Saisie du nom, prénom, structure, **téléphone**, fonction (facultative) et choix du plat
 - Message « Inscription réussie » + **téléchargement du reçu en PDF**
-- **Le numéro de téléphone identifie chaque personne** : refaire l'inscription avec le même numéro met à jour le choix (tant que les choix ne sont pas clôturés). « 77 123 45 67 », « +221 77 123 45 67 » et « 00221771234567 » sont reconnus comme le même numéro ; les numéros étrangers sont acceptés
+- **Le numéro de téléphone identifie chaque personne** : refaire l'inscription avec le même numéro met à jour le choix (tant que les choix ne sont pas clôturés). numéro au format national imposé (« 77 123 45 67 », 9 chiffres commençant par 7 ou 3), mis en forme automatiquement pendant la saisie
 
 **Administrateur** (`/admin.html`, bouton « Espace admin » en haut à droite)
 - Connexion par mot de passe (bloquée 15 min après 8 tentatives échouées)

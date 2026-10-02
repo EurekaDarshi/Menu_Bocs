@@ -104,6 +104,12 @@
 
   $("dish").addEventListener("change", updatePreview);
 
+  // Saisie du téléphone : chiffres uniquement, mis en forme « 77 123 45 67 » au fil de la frappe.
+  $("telephone").addEventListener("input", (e) => {
+    const d = e.target.value.replace(/\D/g, "").slice(0, 9);
+    e.target.value = [d.slice(0, 2), d.slice(2, 5), d.slice(5, 7), d.slice(7, 9)].filter(Boolean).join(" ");
+  });
+
   $("order-form").addEventListener("submit", async (e) => {
     e.preventDefault();
     showError("");
@@ -116,8 +122,7 @@
       dishId: $("dish").value,
     };
     if (!payload.nom || !payload.prenom || !payload.structure) return showError("Merci de renseigner votre nom, prénom et structure.");
-    const digits = payload.telephone.replace(/\D/g, "");
-    if (digits.length < 8 || digits.length > 15) return showError("Merci de renseigner un numéro de téléphone valide (ex. 77 123 45 67).");
+    if (!/^[37]\d{8}$/.test(payload.telephone.replace(/\s/g, ""))) return showError("Numéro de téléphone invalide : 9 chiffres au format 77 123 45 67.");
     if (!payload.dishId) return showError("Merci de choisir un plat dans la liste.");
 
     const btn = $("submit-btn");

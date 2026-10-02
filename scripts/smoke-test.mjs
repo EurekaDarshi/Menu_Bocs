@@ -48,24 +48,22 @@ assert.match(r.body.order.receipt, /^BOCS-[A-F0-9]{8}$/);
 const awa = r.body.order;
 
 // Même numéro (écrit autrement) : le choix et les informations sont mis à jour
-r = await call("POST", "/orders", { nom: "Diop", prenom: "Aïssatou", structure: "MASAE", telephone: "+221 771234567", dishId: yassa });
+r = await call("POST", "/orders", { nom: "Diop", prenom: "Aïssatou", structure: "MASAE", telephone: "771234567", dishId: yassa });
 assert.equal(r.status, 200, "même numéro → mise à jour");
 assert.equal(r.body.updated, true);
 assert.equal(r.body.order.id, awa.id);
 assert.equal(r.body.order.prenom, "Aïssatou");
-r = await call("POST", "/orders", { nom: "Diop", prenom: "Aïssatou", structure: "MASAE", telephone: "00221 77 123 45 67", dishId: yassa });
-assert.equal(r.body.order.id, awa.id, "format international reconnu");
+r = await call("POST", "/orders", { nom: "Diop", prenom: "Aïssatou", structure: "MASAE", telephone: "+221 77 123 45 67", dishId: yassa });
+assert.equal(r.status, 400, "format international refusé (format national exigé)");
 
 // Homonyme avec un autre numéro : deux inscriptions distinctes
 r = await call("POST", "/orders", { nom: "Diop", prenom: "Aïssatou", structure: "MASAE", telephone: "78 000 00 00", dishId: thieb });
 assert.equal(r.status, 201, "homonyme = nouvelle inscription");
 const homonyme = r.body.order;
 
-// Numéro étranger accepté, numéro invalide ou absent refusé
-r = await call("POST", "/orders", { nom: "Martin", prenom: "Paul", structure: "Partenaire", telephone: "+33 6 12 34 56 78", dishId: thieb });
-assert.equal(r.status, 201);
-assert.equal(r.body.order.telephone, "+33612345678");
-const etranger = r.body.order;
+// Numéro invalide ou absent refusé
+r = await call("POST", "/orders", { nom: "Fall", prenom: "Ibou", structure: "BOCS", telephone: "57 123 45 67", dishId: thieb });
+assert.equal(r.status, 400, "doit commencer par 7 ou 3");
 r = await call("POST", "/orders", { nom: "Fall", prenom: "Ibou", structure: "BOCS", telephone: "123", dishId: thieb });
 assert.equal(r.status, 400, "numéro invalide refusé");
 r = await call("POST", "/orders", { nom: "Fall", prenom: "Ibou", structure: "BOCS", dishId: thieb });
@@ -80,7 +78,6 @@ assert.equal(r.status, 201);
 
 token = (await call("POST", "/admin/login", { password: "secret-test" })).body.token;
 await call("DELETE", `/admin/orders/${homonyme.id}`);
-await call("DELETE", `/admin/orders/${etranger.id}`);
 token = "";
 
 r = await call("POST", "/admin/login", { password: "secret-test" });
